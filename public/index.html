@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OTP Authentication</title>
+</head>
+<body>
+    <h1>OTP Authentication</h1>
+    <form id="otpForm">
+        <label for="phone">Enter your phone number:</label>
+        <input type="text" id="phone" name="phone" placeholder="Your phone number" required>
+        <button type="submit">Get OTP</button>
+    </form>
+    <div id="otpSection" style="display:none;">
+        <label for="otp">Enter OTP:</label>
+        <input type="text" id="otp" name="otp" placeholder="Enter OTP" required>
+        <button onclick="verifyOtp()">Verify OTP</button>
+    </div>
+
+    <script>
+        const otpForm = document.getElementById('otpForm');
+        const otpSection = document.getElementById('otpSection');
+        const phoneInput = document.getElementById('phone');
+        const otpInput = document.getElementById('otp');
+
+        otpForm.addEventListener('submit', function(event) {
+            event.preventDefault();
+            const phone = phoneInput.value;
+            
+            if (phone) {
+                fetch('/send-otp', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ phone: phone })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        otpSection.style.display = 'block'; // Show OTP input section
+                        alert('OTP sent!');
+                    }
+                });
+            }
+        });
+
+        function verifyOtp() {
+            const otp = otpInput.value;
+            fetch('/verify-otp', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ otp: otp })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    window.location.href = '/dashboard'; // Redirect to dashboard
+                } else {
+                    alert('Invalid OTP');
+                }
+            });
+        }
+    </script>
+</body>
+</html>
